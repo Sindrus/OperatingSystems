@@ -64,8 +64,11 @@ public class CustomerQueue {
 //    	gui.println("try to get customer");
     	if(count<=0)
     		bufferEmpty=true;
-    	while(bufferEmpty)
+    	while(bufferEmpty){
     		wait();
+    		if(count<=0)
+        		bufferEmpty=true;
+    	}
     	Customer customer = buffer[first];
     	bufferFull=false;
     	gui.println("Removing customer "+customer.getCustomerID()+" from line");
