@@ -50,6 +50,7 @@ public class Barber implements Runnable{
 				gui.fillBarberChair(pos, c);
 				t.sleep(Globals.barberWork);
 				gui.emptyBarberChair(pos);
+				q.cashier();
 				t.sleep(Globals.barberSleep);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
@@ -59,4 +60,3 @@ public class Barber implements Runnable{
 
 	// Add more methods as needed
 }
-

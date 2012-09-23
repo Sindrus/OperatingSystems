@@ -21,12 +21,6 @@ public class Doorman implements Runnable{
 		this.gui = gui;
 		
 		t = new Thread(this);
-		
-/*		try {
-			q.addCustomer(new Customer());
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}*/
 	}
 
 	/**
@@ -40,7 +34,7 @@ public class Doorman implements Runnable{
 	 * Stops the doorman thread.
 	 */
 	public void stopThread() {
-//		t.stop();
+		t.stop();
 	}
 
 	@Override
