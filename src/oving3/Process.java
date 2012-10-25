@@ -125,57 +125,51 @@ public class Process implements Constants
 	}
 
 	// Add more methods as needed
-	public void timeSpentInCPU(){
-		
-	}
 	
 	public long getCpuTimeNeeded(){
 		return cpuTimeNeeded;
 	}
 	
-	public synchronized void leftCpu(long clock) {
+	public void leftCpu(long clock) {
 		timeSpentInCpu += clock - timeOfLastEvent;
+		System.out.println("timeSpentInCpu: "+timeSpentInCpu);
+		System.out.println("cputimeNeeded: "+cpuTimeNeeded);
 		cpuTimeNeeded -= clock - timeOfLastEvent;
+		System.out.println("new cputimeNeeded: "+cpuTimeNeeded);
 		timeToNextIoOperation -= clock - timeOfLastEvent;
 		timeOfLastEvent = clock;
 		endTime = clock;
-		notifyAll();
 	}
 
-	public synchronized void enterCpu(long clock) {
+	public void enterCpu(long clock) {
 		timeSpentInReadyQueue += clock - timeOfLastEvent;
 		timeOfLastEvent = clock;
-		notifyAll();
 	}
 
-	public synchronized void enterCpuQueue(long clock) {
+	public void enterCpuQueue(long clock) {
 		nofTimesInReadyQueue++;
 		timeOfLastEvent = clock;
-		notifyAll();
 	}
 
-	public synchronized void enterIoQueue(long clock) {
+	public void enterIoQueue(long clock) {
 		nofTimesInIoQueue++;
 		timeSpentInReadyQueue += clock - timeOfLastEvent;
 		timeOfLastEvent = clock;
-		notifyAll();
 	}
 
-	public synchronized void enterIo(long clock) {
+	public void enterIo(long clock) {
 		timeSpentWaitingForIo += clock - timeOfLastEvent;
 		timeOfLastEvent = clock;
-		notifyAll();
 	}
 
-	public synchronized void leftIo(long clock) {
+	public void leftIo(long clock) {
 		timeSpentInIo += clock - timeOfLastEvent;
 		timeToNextIoOperation = (long) (Math.random() * avgIoInterval);
 		timeOfLastEvent = clock;
 
-		notifyAll();
 	}
 	
-	public synchronized long timeToIO() {
+	public long timeToIO() {
 		if (timeToNextIoOperation == 0)
 
 			return timeToNextIoOperation = (long) (Math.random() * avgIoInterval * 2 + avgIoInterval / 4);

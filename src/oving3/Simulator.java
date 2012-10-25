@@ -90,7 +90,6 @@ public class Simulator implements Constants {
 				processEvent(event);
 			}
 			
-			System.out.println("memory.getFreeMemory: "+memory.getFreeMemory());
 
 			// Note that the processing of most events should lead to new
 			// events being added to the event queue!
@@ -184,12 +183,22 @@ public class Simulator implements Constants {
 		if(p==null)
 			return;
 		
+		System.out.println("timeToIO: "+p.timeToIO());
+		System.out.println("getCpuTimeNeeded(): "+p.getCpuTimeNeeded());
+		
 		if (p.timeToIO() > cpu.getMaxCpuTime() && p.getCpuTimeNeeded() > cpu.getMaxCpuTime())
 			eventQueue.insertEvent(new Event(SWITCH_PROCESS, clock + cpu.getMaxCpuTime()));
-		else if (p.timeToIO() > p.getCpuTimeNeeded())
+		else if (p.timeToIO() > p.getCpuTimeNeeded()){
+//		else if(p.getCpuTimeNeeded()==0){
+//		else if (p.timeToIO() > p.getCpuTimeNeeded() 
+//				&& p.getCpuTimeNeeded() < cpu.getMaxCpuTime()){
+			System.out.println("End_process");
 			eventQueue.insertEvent(new Event(END_PROCESS, clock + p.getCpuTimeNeeded()));
-		else
-			eventQueue.insertEvent(new Event(IO_REQUEST, clock + p.timeToIO()));
+		}
+		else{
+			System.out.println("IOIOIOIOIO");
+//			eventQueue.insertEvent(new Event(IO_REQUEST, clock + p.timeToIO()));
+		}
 		
 //		eventQueue.insertEvent(new Event(END_PROCESS, clock + 50));
 	}
@@ -213,21 +222,13 @@ public class Simulator implements Constants {
             createEvent(p);
         }
 	}
-/*	private void switchProcess() {
-		Process p = cpu.getCurrent();
-		cpu.work();
-		System.out.println(p);
-//		if(p!=null){
-			createEvent(p);
-//		}
-		// Incomplete
-	}*/
 
 	/**
 	 * Ends the active process, and deallocates any resources allocated to it.
 	 */
 	private void endProcess() {
 		Process p = cpu.getCurrent();
+		p.leftCpu(clock);
 		memory.processCompleted(p);
 		// Incomplete
 	}
@@ -239,6 +240,8 @@ public class Simulator implements Constants {
 	private void processIoRequest() {
 //		statistics.nofIOOperations++;
         Process p = cpu.getCurrent();
+        if (p==null)
+        	return;
         p.leftCpu(clock);
 
         p.enterIoQueue(clock);

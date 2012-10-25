@@ -25,12 +25,14 @@ public class IO {
 	
 	public Process start(){
 		if (IOQueue.isEmpty()){
+			currentProcess = null;
+			gui.setCpuActive(null);
 			return null;
 		}
-		Process p = (Process)IOQueue.removeNext();
-		currentProcess = p;
-		gui.setIoActive(p);
-		return p;
+		currentProcess = (Process)IOQueue.removeNext();
+		currentProcess = currentProcess;
+		gui.setIoActive(currentProcess);
+		return currentProcess;
 	}
 	
 	public long getIOTime(){
