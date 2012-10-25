@@ -158,7 +158,7 @@ public class Simulator implements Constants
 			statistics.nofForcedSwitchesFromCPU++;
 		}
 		
-		p = cpu.start();
+		p = cpu.work();
 		if (p != null){
 			p.startedInCPU(clock);
 			generateNewEvent(p);
@@ -234,16 +234,16 @@ public class Simulator implements Constants
 	 * the next iooperation.  
 	 */
 	public void generateNewEvent(Process p){
-		if (p.getTimeToNextIOOperation() > cpu.getMaxCPUTime() 
+		if (p.getTimeToIO() > cpu.getMaxCPUTime() 
 				&& p.getCpuTimeNeeded() > cpu.getMaxCPUTime()) {
 			eventQueue.insertEvent(new Event(SWITCH_PROCESS, clock + cpu.getMaxCPUTime()));
 			return;
-		}else if (p.getTimeToNextIOOperation() > p.getCpuTimeNeeded() 
+		}else if (p.getTimeToIO() > p.getCpuTimeNeeded() 
 				&& p.getCpuTimeNeeded() < cpu.getMaxCPUTime()){
 			eventQueue.insertEvent(new Event(END_PROCESS, clock + p.getCpuTimeNeeded()));
 			return;
 		}
-		eventQueue.insertEvent(new Event(IO_REQUEST, clock + p.getTimeToNextIOOperation()));
+		eventQueue.insertEvent(new Event(IO_REQUEST, clock + p.getTimeToIO()));
 	}
 
 	/**

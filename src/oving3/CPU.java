@@ -48,9 +48,10 @@ public class CPU {
 	/**
 	 * Start the next process if one exist
 	 */
-	public Process start(){
+	public Process work(){
 		if(cpuQueue.isEmpty()){
 			currentProcess = null;
+			gui.setCpuActive(null);
 		}else{
 			currentProcess = (Process) cpuQueue.removeNext();
 			gui.setCpuActive(currentProcess);

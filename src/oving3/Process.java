@@ -130,8 +130,26 @@ public class Process implements Constants
 		statistics.totalNumberOfIOProcessings += nofTimesInIO;
 	}
 	
-	// Add more methods as needed
+	/**
+	 * When is the next IOaction supposed to happen
+	 */
+
+	public long getTimeToIO(){
+		if (timeToNextIoOperation <= 0)
+			return timeToNextIoOperation = (long)(Math.random() * avgIoInterval + (long) (Math.floor(avgIoInterval * 3)));
+		return timeToNextIoOperation;
+	}
 	
+	/**
+	 * How much more CPUtime is needed by the process
+	 */
+	public long getCpuTimeNeeded() {
+		return cpuTimeNeeded;
+	}
+	
+	/**
+	 * All of the following methods are for keeping track of time 
+	 */
 	public void leftCPU1(long clock){
 		long deltaTime = clock - timeOfLastEvent;
 		timeSpentInCpu += deltaTime;
@@ -146,16 +164,6 @@ public class Process implements Constants
 		timeSpentInReadyQueue += deltaTime;
 		nofTimesInReadyQueue++;
 		timeOfLastEvent = clock;
-	}
-	
-	public long getTimeToNextIOOperation(){
-		if (timeToNextIoOperation <= 0)
-			return timeToNextIoOperation = (long)(Math.random() * avgIoInterval + (long) (Math.floor(avgIoInterval * 3)));
-		return timeToNextIoOperation;
-	}
-
-	public long getCpuTimeNeeded() {
-		return cpuTimeNeeded;
 	}
 	
 	public void leftCPU(long clock){
