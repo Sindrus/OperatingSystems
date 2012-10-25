@@ -47,6 +47,8 @@ public class Process implements Constants
 
 	/** The global time of the last event involving this process */
 	private long timeOfLastEvent;
+	
+	private long endTime;
 
 	/**
 	 * Creates a new process with given parameters. Other parameters are randomly
@@ -70,6 +72,9 @@ public class Process implements Constants
 		int green = 64+(int)((processId*47)%128);
 		int blue = 64+(int)((processId*53)%128);
 		color = new Color(red, green, blue);
+		
+		timeToNextIoOperation = (long)(Math.random()*avgIoInterval*2 + avgIoInterval/4);
+		
 	}
 
 	/**
@@ -127,4 +132,56 @@ public class Process implements Constants
 	public long getCpuTimeNeeded(){
 		return cpuTimeNeeded;
 	}
+	
+	public synchronized void leftCpu(long clock) {
+		timeSpentInCpu += clock - timeOfLastEvent;
+		cpuTimeNeeded -= clock - timeOfLastEvent;
+		timeToNextIoOperation -= clock - timeOfLastEvent;
+		timeOfLastEvent = clock;
+		endTime = clock;
+		notifyAll();
+	}
+
+	public synchronized void enterCpu(long clock) {
+		timeSpentInReadyQueue += clock - timeOfLastEvent;
+		timeOfLastEvent = clock;
+		notifyAll();
+	}
+
+	public synchronized void enterCpuQueue(long clock) {
+		nofTimesInReadyQueue++;
+		timeOfLastEvent = clock;
+		notifyAll();
+	}
+
+	public synchronized void enterIoQueue(long clock) {
+		nofTimesInIoQueue++;
+		timeSpentInReadyQueue += clock - timeOfLastEvent;
+		timeOfLastEvent = clock;
+		notifyAll();
+	}
+
+	public synchronized void enterIo(long clock) {
+		timeSpentWaitingForIo += clock - timeOfLastEvent;
+		timeOfLastEvent = clock;
+		notifyAll();
+	}
+
+	public synchronized void leftIo(long clock) {
+		timeSpentInIo += clock - timeOfLastEvent;
+		timeToNextIoOperation = (long) (Math.random() * avgIoInterval);
+		timeOfLastEvent = clock;
+
+		notifyAll();
+	}
+	
+	public synchronized long timeToIO() {
+		if (timeToNextIoOperation == 0)
+
+			return timeToNextIoOperation = (long) (Math.random() * avgIoInterval * 2 + avgIoInterval / 4);
+		else
+
+			return timeToNextIoOperation;
+	}
+	
 }

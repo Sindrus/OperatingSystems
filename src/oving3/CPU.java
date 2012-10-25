@@ -22,7 +22,6 @@ public class CPU {
 		Process p = currentProcess;
 		currentProcess = null;
 		return p;
-//		return currentProcess;
 	}
 	
 	public boolean isIdle(){
@@ -32,6 +31,7 @@ public class CPU {
 	public Process work(){
 		if(!cpuQueue.isEmpty()){
 			Process p = (Process) cpuQueue.removeNext();
+			currentProcess = p;
 			gui.setCpuActive(p);
 			return p;
 		}else{
