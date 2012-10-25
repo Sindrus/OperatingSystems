@@ -44,11 +44,13 @@ public class Process implements Constants
 	private long nofTimesInReadyQueue = 0;
 	/** The number of times that this process has been placed in the I/O queue */
 	private long nofTimesInIoQueue = 0;
+//	number of times that this process has had the cpu
+	private long nofTimesInCPU = 0;
+//	number of times that this process has had IO time;
+	private long nofTimesInIO = 0;
 
 	/** The global time of the last event involving this process */
 	private long timeOfLastEvent;
-	
-	private long endTime;
 
 	/**
 	 * Creates a new process with given parameters. Other parameters are randomly
@@ -72,9 +74,6 @@ public class Process implements Constants
 		int green = 64+(int)((processId*47)%128);
 		int blue = 64+(int)((processId*53)%128);
 		color = new Color(red, green, blue);
-		
-		timeToNextIoOperation = (long)(Math.random()*avgIoInterval*2 + avgIoInterval/4);
-		
 	}
 
 	/**
@@ -122,60 +121,64 @@ public class Process implements Constants
 	public void updateStatistics(Statistics statistics) {
 		statistics.totalTimeSpentWaitingForMemory += timeSpentWaitingForMemory;
 		statistics.nofCompletedProcesses++;
+		statistics.totalTimeInCPU += timeSpentInCpu;
+		statistics.totalTimeInCUPQueue += timeSpentInReadyQueue;
+		statistics.totalTimeInIO += timeSpentInIo;
+		statistics.totalTimeInIOQueue += timeSpentWaitingForIo;
+		statistics.totalNumberOfTimesPlacedInCPUQueue += nofTimesInReadyQueue;
+		statistics.totalNumberOfTimesPlacedInIOQueue += nofTimesInIoQueue;
+		statistics.totalNumberOfIOProcessings += nofTimesInIO;
 	}
-
+	
 	// Add more methods as needed
 	
-	public long getCpuTimeNeeded(){
-		return cpuTimeNeeded;
+	public void leftCPU1(long clock){
+		long deltaTime = clock - timeOfLastEvent;
+		timeSpentInCpu += deltaTime;
+		cpuTimeNeeded -= deltaTime;
+		timeToNextIoOperation -= deltaTime;
+		nofTimesInReadyQueue++;
+		timeOfLastEvent = deltaTime;
 	}
 	
-	public void leftCpu(long clock) {
-		timeSpentInCpu += clock - timeOfLastEvent;
-		System.out.println("timeSpentInCpu: "+timeSpentInCpu);
-		System.out.println("cputimeNeeded: "+cpuTimeNeeded);
-		cpuTimeNeeded -= clock - timeOfLastEvent;
-		System.out.println("new cputimeNeeded: "+cpuTimeNeeded);
-		timeToNextIoOperation -= clock - timeOfLastEvent;
-		timeOfLastEvent = clock;
-		endTime = clock;
-	}
-
-	public void enterCpu(long clock) {
-		timeSpentInReadyQueue += clock - timeOfLastEvent;
-		timeOfLastEvent = clock;
-	}
-
-	public void enterCpuQueue(long clock) {
+	public void startedInCPU(long clock){
+		long deltaTime = clock - timeOfLastEvent;
+		timeSpentInReadyQueue += deltaTime;
 		nofTimesInReadyQueue++;
 		timeOfLastEvent = clock;
 	}
+	
+	public long getTimeToNextIOOperation(){
+		if (timeToNextIoOperation <= 0)
+			return timeToNextIoOperation = (long)(Math.random() * avgIoInterval + (long) (Math.floor(avgIoInterval * 3)));
+		return timeToNextIoOperation;
+	}
 
-	public void enterIoQueue(long clock) {
+	public long getCpuTimeNeeded() {
+		return cpuTimeNeeded;
+	}
+	
+	public void leftCPU(long clock){
+		long deltaTime = clock - timeOfLastEvent;
+		timeSpentInCpu += deltaTime;
+		cpuTimeNeeded -= deltaTime;
+		timeToNextIoOperation -= deltaTime;
+		nofTimesInCPU++;
+		timeOfLastEvent = clock;
+	}
+	
+	public void leftIO(long clock){
+		long deltaTime = clock- timeOfLastEvent;
+		timeSpentInIo += deltaTime;
+		timeToNextIoOperation -= deltaTime;
+		nofTimesInIO++;
+		timeOfLastEvent = clock;
+	}
+	
+	public void enteredIO(long clock){
+		long deltaTime = clock - timeOfLastEvent;
+		timeSpentWaitingForIo += deltaTime;
 		nofTimesInIoQueue++;
-		timeSpentInReadyQueue += clock - timeOfLastEvent;
 		timeOfLastEvent = clock;
 	}
-
-	public void enterIo(long clock) {
-		timeSpentWaitingForIo += clock - timeOfLastEvent;
-		timeOfLastEvent = clock;
-	}
-
-	public void leftIo(long clock) {
-		timeSpentInIo += clock - timeOfLastEvent;
-		timeToNextIoOperation = (long) (Math.random() * avgIoInterval);
-		timeOfLastEvent = clock;
-
-	}
-	
-	public long timeToIO() {
-		if (timeToNextIoOperation == 0)
-
-			return timeToNextIoOperation = (long) (Math.random() * avgIoInterval * 2 + avgIoInterval / 4);
-		else
-
-			return timeToNextIoOperation;
-	}
-	
 }
